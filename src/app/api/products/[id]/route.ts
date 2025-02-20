@@ -1,17 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import {productsData} from "@/app/api/products/productsData";
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }>
-  })
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> })
 {
-  const id = (await params).id
 
-  return NextResponse.json(productsData.filter(product => product.id === +id), { status: 200 })
-  // try {
-  //   return NextResponse.json(productsData, { status: 200 });
-  // } catch (error) {
-  //   return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
-  // }
+  try {
+    const response = await fetch('http://json-server:4000/products/'+ (await params).id);
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch products: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    return NextResponse.json(data, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
 }

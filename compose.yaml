@@ -16,3 +16,17 @@ services:
             - node_modules/
         - action: rebuild
           path: package.json
+    depends_on:
+      - json-server # Убедитесь, что json-server запускается первым
+
+  json-server:
+    image: node:20-alpine
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./db:/app/db
+    working_dir: /app
+    command: ["json-server", "--watch", "db/db.json", "--port", "3000"]
+    environment:
+      NODE_ENV: development
+    entrypoint: ["sh", "-c", "npm install -g json-server && exec json-server --watch db/db.json --port 4000"]
